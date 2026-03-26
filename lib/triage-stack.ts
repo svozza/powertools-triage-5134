@@ -21,15 +21,20 @@ export class TriageStack extends Stack {
       entry: './src/index.ts',
       handler: 'handler',
       bundling: {
-        minify: true,
-        mainFields: ['module', 'main'],
-        sourceMap: true,
-        format: OutputFormat.ESM,
-        banner:
-          "import { createRequire } from 'module';const require = createRequire(import.meta.url);",
-      },
-      environment: {
-        NODE_OPTIONS: '--enable-source-maps',
+        minify: false,
+        mainFields: ['main'],
+        sourceMap: false,
+        format: OutputFormat.CJS,
+        externalModules: ['@aws-lambda-powertools/*'],
+        commandHooks: {
+          beforeBundling: () => [],
+          beforeInstall: () => [],
+          afterBundling: (_inputDir: string, outputDir: string) => [
+            `mkdir -p ${outputDir}/node_modules/@aws-lambda-powertools ${outputDir}/node_modules/@aws`,
+            `cp -r node_modules/@aws-lambda-powertools/. ${outputDir}/node_modules/@aws-lambda-powertools/`,
+            `cp -r node_modules/@aws/. ${outputDir}/node_modules/@aws/`,
+          ],
+        },
       },
     });
 
